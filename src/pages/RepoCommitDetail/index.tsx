@@ -12,14 +12,14 @@ import { convertDataToIco } from "../../utils/utils";
 
 const RepoCommitDetailPage = (props: any) => {
   const isLogin = useSelector(isLoginState);
-  const { login, repo } = props.match.params;
+  const { login, repo } = props?.match?.params;
   const [{ response, isLoading, error }, doFetch] = useFetch(
     `/repos/${login}/${repo}/commits`
   );
   const commitList = ((response as unknown) as ICommitItemGH[]) || [];
   const authorAvatar =
-    commitList?.find((item: ICommitItemGH) => item.author.login === login)
-      ?.author.avatar_url || ``;
+    commitList?.find((item: ICommitItemGH) => item?.author?.login === login)
+      ?.author?.avatar_url || ``;
   const avatarFallback = `https://i.stack.imgur.com/frlIf.png`;
   const errorMessage = ((error as unknown) as { message: string })?.message;
 

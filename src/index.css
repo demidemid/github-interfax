@@ -1,0 +1,11 @@
+.search-custom .ui.icon.input {
+  width: 100%;
+}
+
+.search-custom .results.transition.visible {
+  display: none !important;
+}
+
+.ui.items > .item {
+  margin: 20px 0 !important;
+}

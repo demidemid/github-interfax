@@ -11,6 +11,7 @@ import {
   Search,
   Segment,
 } from "semantic-ui-react";
+import ErrorCustom from "../../components/ErrorCustom";
 import UserCard from "../../components/UserCard";
 import useDebounce from "../../hooks/useDebounce";
 import useFetch from "../../hooks/useFetch";
@@ -26,8 +27,9 @@ const ProfilePage = (props: any) => {
   const debouncedSearchValue = useDebounce(searchValue, 700);
   const dispatch = useDispatch();
   const [, setIsLogin] = useLocalStorage(`isLogin`);
-  const [{ response, isLoading }, doFetch] = useFetch(`/search/users`);
-  const [emptyList, setEmptyList] = useState(false)
+  const [{ response, isLoading, error }, doFetch] = useFetch(`/search/users`);
+  const [emptyList, setEmptyList] = useState(false);
+  const errorMessage = ((error as unknown) as { message: string })?.message;
   let userList = response ? ((response as unknown) as IProfileGH).items : [];
 
   useEffect(() => {
@@ -41,15 +43,19 @@ const ProfilePage = (props: any) => {
   }, [debouncedSearchValue]);
 
   useEffect(() => {
-    setEmptyList(!userList.length && searchValue.length > 0)
-    
+    setEmptyList(!userList.length && searchValue.length > 0);
+
     if (searchValue.length === 0) {
-      setEmptyList(false)
+      setEmptyList(false);
     }
-  }, [userList.length, userLogin])
+  }, [userList.length]);
 
   if (!isLogin) {
     return <Redirect to={RouteTypes.LOGIN} />;
+  }
+
+  if (errorMessage) {
+    return <ErrorCustom errorText={errorMessage} />;
   }
 
   const handleLogoutClick = () => {
@@ -91,19 +97,24 @@ const ProfilePage = (props: any) => {
           justifyContent: "space-between",
         }}
       >
-        {searchValue.length ? userList?.map((item) => (
-          <UserCard
-            key={item.id}
-            avatar_url={item.avatar_url}
-            login={item.login}
-            linkUrl={`/users/${item.login}/repos`}
-            buttonName="View"
-            style={{ maxWidth: "30%" }}
-          />
-        )) : ``}
+        {searchValue.length
+          ? userList?.map((item) => (
+              <UserCard
+                key={item.id}
+                avatar_url={item.avatar_url}
+                login={item.login}
+                linkUrl={`/users/${item.login}/repos`}
+                buttonName="View"
+                style={{ maxWidth: "30%" }}
+              />
+            ))
+          : ``}
 
         {emptyList && (
-          <Message info style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}>
+          <Message
+            info
+            style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}
+          >
             <Message.Header>
               The user you are looking for does not exist, try changing your
               query
